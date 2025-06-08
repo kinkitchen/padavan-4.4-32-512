@@ -26,17 +26,17 @@
 
 		partition@50000 {
 			label = "firmware";
-			reg = <0x50000 0x50000>;
+			reg = <0x50000 0xFB0000>; /* 16MB */
 		};
 
-		partition@100000 {
+		partition@1000000 {
 			label = "Storage";
-			reg = <0x1000000 0x1000000>; /* 16384K */
+			reg = <0x1000000 0x1000000>; /* 16MB */
 		};
 
 		partition@all {
 			label = "ALL";
-			reg = <0x0 0x2000000>;
+			reg = <0x0 0x2000000>; /* 32MB */
 		};
 	};
 };
