@@ -12,8 +12,10 @@ config_test:
 
 configure:
 	( cd $(SRC_NAME) ; \
-	./autogen.sh ; \
-	./configure \
+          chmod +x autogen.sh ; \
+	  ./autogen.sh ; \
+          chmod +x configure ; \
+	  ./configure \
 		--prefix=/ \
 		--host=$(HOST_TARGET) \
 		--build=$(HOST_BUILD) ; \
