@@ -17,12 +17,6 @@ var uagent = navigator.userAgent.toLowerCase();
 var is_ie11p = (/trident\/7\./).test(uagent);
 var is_mobile = (/iphone|ipod|ipad|iemobile|android|blackberry|fennec/).test(uagent);
 
-var w_lucky = '<% nvram_get_x("", "w_lucky"); %>';
-if (w_lucky==0){Add commentMore actions
-	menuL2_link[23] = "";
-	menuL2_title[23] = "";
-}
-
 var new_wan_internet = '<% nvram_get_x("", "link_internet"); %>';
 var id_check_status = 0;
 var id_system_info = 0;
@@ -411,7 +405,7 @@ if (found_app_shadowsocks()){
 if (found_app_mentohust()){
 	tabtitle[13] = new Array("", "<#menu5_1_1#>","<#menu5_13_log#>");
 }
-if (found_app_lucky()){
+if (found_app_adbyby()){
 	tabtitle[14] = new Array("", "<#menu5_20_1#>");
 }
 if (found_app_smartdns()||found_app_adguardhome()){
@@ -459,8 +453,8 @@ if (found_app_mentohust()){
 	mentohust_array = new Array("","mentohust.asp","mentohust_log.asp");
 	tablink[13] = (mentohust_array);
 }
-if (found_app_lucky()){
-	ad_array = new Array("","Advanced_lucky.asp");
+if (found_app_adbyby()){
+	ad_array = new Array("","Advanced_adbyby.asp");
 	tablink[14] = (ad_array);
 }
 if (found_app_smartdns()){
@@ -517,7 +511,7 @@ if (found_app_mentohust()){
 	menuL2_title.push("mentohust");
 } else menuL2_title.push("");
 
-if (found_app_lucky()){
+if (found_app_adbyby()){
 	menuL2_title.push("<#menu5_20#>");
 } else menuL2_title.push("");
 
@@ -558,7 +552,7 @@ if (found_app_mentohust()){
 	menuL2_link.push(mentohust_array[1]);
 } else menuL2_link.push("");
 
-if (found_app_lucky()){
+if (found_app_adbyby()){
 	menuL2_link.push(ad_array[1]);
 }  else menuL2_link.push("");
 
@@ -745,7 +739,7 @@ function show_footer(){
 	footer_code = '<div align="center" class="bottom-image"></div>\n';
 	footer_code +='<div align="center" class="copyright"><#footer_copyright_desc#></div>\n';
 	footer_code +='<div align="center">\n';
-	footer_code +='  <span>Developed by © <a href="https://bitbucket.org/padavan/rt-n56u/">Andy Padavan</a> &amp; <a href="https://github.com/hanwckf/padavan-4.4">hanwckf</a> &amp; <a href="https://github.com/MeIsReallyBa/padavan-4.4">MeIsReallyBa</a> &amp; <a href="https://github.com/tsl0922/padavan">tsl0922</a> &amp; <a href="https://github.com/TurBoTse/padavan">TurBoTse</a></span></br>\n';
+	footer_code +='  <span>compile by CHEN</span></br>\n';
 	footer_code +='  <span>Firmware distribution is prohibited , Non-Commercial Use Only</span></br>\n';
 	footer_code +='</div>\n';
 
