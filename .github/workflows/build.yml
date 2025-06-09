@@ -49,7 +49,7 @@ jobs:
         run: |
           cd trunk/images
           for f in *.trx; do
-            new_name="${f/TurBoTse/chen}"  # 替换前缀
+            new_name="${f/TurBoTse/CHEN}"  # 替换前缀
             mv "$f" "$new_name"
           done
           cd -
