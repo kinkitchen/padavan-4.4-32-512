@@ -269,11 +269,14 @@ int insertRoute(uint32_t group, int ifx, uint32_t src) {
 
     // Sanitycheck the group adress...
     if( ! IN_MULTICAST( ntohl(group) )) {
-        my_log(LOG_WARNING, 0, "The group address %s is not a valid Multicast group. Table insert failed.",
-            inetFmt(group, s1));
+       if(group==htonl(INADDR_BROADCAST)) { 
+       return 0;
+    }
+       my_log(LOG_WARNING, 0, "The group address %s is not a valid Multicast group. Table insert failed.",
+           inetFmt(group, s1));
         return 0;
     }
-
+    
     // Santiycheck the VIF index...
     if(ifx >= MAXVIFS) {
         my_log(LOG_WARNING, 0, "The VIF Ix %d is out of range (0-%d). Table insert failed.", ifx, MAXVIFS-1);
