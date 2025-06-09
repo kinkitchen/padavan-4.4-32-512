@@ -4,7 +4,6 @@ var wan_proto = '<% nvram_get_x("", "wan_proto"); %>';
 var lan_proto = '<% nvram_get_x("", "lan_proto_x"); %>';
 var log_float = '<% nvram_get_x("", "log_float_ui"); %>';
 var reboot_schedule_support = '<% nvram_get_x("", "reboot_schedule_enable"); %>';
-var ss_schedule_support = '<% nvram_get_x("", "ss_schedule_enable"); %>';
 var log_stamp = 0;
 var sysinfo = <% json_system_status(); %>;
 var uptimeStr = "<% uptime(); %>";
@@ -13,10 +12,16 @@ var newformat_systime = uptimeStr.substring(8,11) + " " + uptimeStr.substring(5,
 var systime_millsec = Date.parse(newformat_systime); // millsec from system
 var JS_timeObj = new Date(); // 1970.1.1
 var cookie_pref = 'n56u_cookie_';
-
+var ss_schedule_support = '<% nvram_get_x("", "ss_schedule_enable"); %>';
 var uagent = navigator.userAgent.toLowerCase();
 var is_ie11p = (/trident\/7\./).test(uagent);
 var is_mobile = (/iphone|ipod|ipad|iemobile|android|blackberry|fennec/).test(uagent);
+
+var w_lucky = '<% nvram_get_x("", "w_lucky"); %>';
+if (w_lucky==0){Add commentMore actions
+	menuL2_link[23] = "";
+	menuL2_title[23] = "";
+}
 
 var new_wan_internet = '<% nvram_get_x("", "link_internet"); %>';
 var id_check_status = 0;
@@ -226,8 +231,6 @@ var enabled2Gclass = '<% nvram_match_x("","rt_radio_x", "1", "btn-info"); %>';
 var enabled5Gclass = '<% nvram_match_x("","wl_radio_x", "1", "btn-info"); %>';
 var enabledGuest2Gclass = '<% nvram_match_x("","rt_guest_enable", "1", "btn-info"); %>';
 var enabledGuest5Gclass = '<% nvram_match_x("","wl_guest_enable", "1", "btn-info"); %>';
-var enabledBtnCommit = '<% nvram_match_x("","nvram_manual", "0", "display:none;"); %>';
-var enabledBtnttyd = '<% nvram_match_x("","ttyd_enable", "0", "display:none;"); %>';
 
 // L3 = The third Level of Menu
 function show_banner(L3){
@@ -238,9 +241,13 @@ function show_banner(L3){
 		style_2g = 'width:114px;';
 		style_5g = 'width:21px;display:none;';
 	}
-	var title_2g = '"2.4G"'
+	var title_2g = '"2.4GHz"'
 	if (!support_2g_radio()) {
 		title_2g = '"N/A" disabled';
+	}
+	var title_5g = '"5GHz"'
+	if (!support_5g_radio()) {
+		title_5g = '"N/A" disabled';
 	}
 
 	// log panel
@@ -350,19 +357,19 @@ function show_banner(L3){
 	bc += '<table class="table table-condensed" style="margin-bottom: 0px">\n';
 	bc += '  <tr>\n';
 	bc += '    <td width="50%" style="border: 0 none;"><#menu5_1#>:</td>\n';
-	bc += '    <td style="border: 0 none; min-width: 115px;"><div class="form-inline"><input type="button" id="wifi2_b" class="btn btn-mini '+enabled2Gclass+'" style="'+style_2g+'" value='+title_2g+' onclick="go_setting(2);">&nbsp;<input type="button" id="wifi5_b" style="'+style_5g+'" class="btn btn-mini '+enabled5Gclass+'" value="5G" onclick="go_setting(5);"></div></td>\n';
+	bc += '    <td style="border: 0 none; min-width: 115px;"><div class="form-inline"><input type="button" id="wifi2_b" class="btn btn-mini '+enabled2Gclass+'" style="'+style_2g+'" value='+title_2g+' onclick="go_setting(2);">&nbsp;<input type="button" id="wifi5_b" style="'+style_5g+'" class="btn btn-mini '+enabled5Gclass+'" value='+title_5g+' onclick="go_setting(5);"></div></td>\n';
 	bc += '  </tr>\n';
 	bc += '  <tr>\n';
 	bc += '    <td><#menu5_1_2#>:</td>\n';
-	bc += '    <td><div class="form-inline"><input type="button" id="wifi2_b_g" class="btn btn-mini '+enabledGuest2Gclass+'" style="'+style_2g+'" value='+title_2g+' onclick="go_wguest(2);">&nbsp;<input type="button" id="wifi5_b_g" style="'+style_5g+'" class="btn btn-mini '+enabledGuest5Gclass+'" value="5G" onclick="go_wguest(5);"></div></td>\n';
+	bc += '    <td><div class="form-inline"><input type="button" id="wifi2_b_g" class="btn btn-mini '+enabledGuest2Gclass+'" style="'+style_2g+'" value='+title_2g+' onclick="go_wguest(2);">&nbsp;<input type="button" id="wifi5_b_g" style="'+style_5g+'" class="btn btn-mini '+enabledGuest5Gclass+'" value='+title_5g+' onclick="go_wguest(5);"></div></td>\n';
 	bc += '  </tr>\n';
 	bc += '  <tr>\n';
 	bc += '    <td><#General_x_FirmwareVersion_itemname#></td>\n';
 	bc += '    <td><a href="/Advanced_FirmwareUpgrade_Content.asp"><span id="firmver" class="time"></span></a></td>\n';
 	bc += '  </tr>\n';
 	bc += '  <tr>\n';
-	bc += '    <td><button type="button" id="commit_btn" class="btn btn-mini" style="width: 114px; height: 21px; outline:0; '+enabledBtnCommit+'" onclick="commit();"><i class="icon icon-fire"></i>&nbsp;<#CTL_Commit#></button></td>\n';
-	bc += '    <td><button type="button" id="ttyd_btn" class="btn btn-mini btn-success" style="width: 50px; height: 21px; outline:0; '+enabledBtnttyd+'" onclick="button_ttyd();">TTYD</button>&nbsp;<button type="button" id="logout_btn" class="btn btn-mini" style="height: 21px; outline:0;" title="<#t1Logout#>" onclick="logout();"><i class="icon icon-user"></i></button> <button type="button" id="reboto_btn" class="btn btn-mini" style="height: 21px; outline:0;" title="<#BTN_REBOOT#>" onclick="reboot();"><i class="icon icon-off"></i></td>\n';
+	bc += '    <td><input type="button" class="btn btn-info" value=<#CTL_refresh#> onClick="parent.location.reload();"> <input type="button" class="btn btn-primary" value="<#CTL_apply#>" onclick="applyRule();"></td>\n';
+	bc += '    <td><button type="button" id="freememory_btn" class="btn btn-mini" style="height: 21px; outline:0;" title="<#BTN_FREEMEMORY#>" onclick="freememory();"><i class="icon icon-trash"></i></button> <button type="button" id="logout_btn" class="btn btn-mini" style="height: 21px; outline:0;" title="<#t1Logout#>" onclick="logout();"><i class="icon icon-user"></i></button> <button type="button" id="reboto_btn" class="btn btn-mini" style="height: 21px; outline:0;" title="<#BTN_REBOOT#>" onclick="reboot();"><i class="icon icon-repeat"></i></button> <button type="button" id="shutdown_btn" class="btn btn-mini" style="margin-left: 15px; height: 21px; outline:0;" title="<#BTN_SHUTDOWN#>" onclick="shutdown();"><i class="icon icon-off"></i></button></td>\n';
 	bc += '  </tr>\n';
 	bc += '</table>\n';
 	bc += '</div>\n';
@@ -380,8 +387,8 @@ function show_banner(L3){
 	show_top_status();
 }
 
-var tabtitle = new Array(35);
-var tablink = new Array(35);
+var tabtitle = new Array(20);
+var tablink = new Array(20);
 tabtitle[0] = new Array("", "<#menu5_1_1#>", "<#menu5_1_2#>", "<#menu5_1_3#>", "<#menu5_1_4#>", "<#menu5_1_5#>", "<#menu5_1_6#>");
 tabtitle[1] = new Array("", "<#menu5_1_1#>", "<#menu5_1_2#>", "<#menu5_1_3#>", "<#menu5_1_4#>", "<#menu5_1_5#>", "<#menu5_1_6#>");
 tabtitle[2] = new Array("", "<#menu5_2_1#>", "<#menu5_2_2#>", "<#menu5_2_3#>", "<#menu5_2_4#>", "<#menu5_2_5#>", "<#menu5_2_6#>");
@@ -389,7 +396,7 @@ tabtitle[3] = new Array("", "<#menu5_3_1#>", "<#menu5_3_3#>", "<#menu5_3_4#>", "
 tabtitle[4] = new Array("", "<#menu5_5_1#>", "<#menu5_5_5#>", "<#menu5_5_2#>", "<#menu5_5_3#>", "<#menu5_5_4#>");
 tabtitle[5] = new Array("", "<#menu5_4_3#>", "<#menu5_4_1#>", "<#menu5_4_2#>", "<#menu5_4_4#>", "<#menu5_4_5#>");
 tabtitle[6] = new Array("", "<#menu5_6_2#>", "<#menu5_6_5#>", "<#menu5_6_1#>", "<#menu5_6_3#>", "<#menu5_6_4#>", "<#menu5_6_6#>");
-tabtitle[7] = new Array("", "<#menu5_10_1#>", "<#menu5_10_2#>", "<#menu5_10_3#>" , "<#menu5_22_1#>");
+tabtitle[7] = new Array("", "<#menu5_10_1#>", "<#menu5_10_2#>", "<#menu5_10_3#>");
 tabtitle[8] = new Array("", "<#menu5_11#>", "<#menu5_12#>", "WAN", "", "", "", "", "", "", "");
 tabtitle[9] = new Array("", "<#menu5_7_2#>", "<#menu5_7_3#>", "<#menu5_7_5#>", "<#menu5_7_6#>", "<#menu5_7_8#>");
 if (found_app_scutclient()){
@@ -404,85 +411,24 @@ if (found_app_shadowsocks()){
 if (found_app_mentohust()){
 	tabtitle[13] = new Array("", "<#menu5_1_1#>","<#menu5_13_log#>");
 }
-if (found_app_adbyby()){
+if (found_app_lucky()){
 	tabtitle[14] = new Array("", "<#menu5_20_1#>");
 }
-if (found_app_koolproxy()){
-	if (found_app_adbyby()){
-		tabtitle[14].push("<#menu5_26_1#>");
-	}else{
-	tabtitle[14] = new Array("", "<#menu5_26_1#>");
-	}
-}
-if (found_app_smartdns()){
-	tabtitle[15] = new Array("", "<#menu5_29#>");	
-}else{
-if (found_app_adguardhome()){
+if (found_app_smartdns()||found_app_adguardhome()){
 	tabtitle[15] = new Array("", "<#menu5_29#>");
 }
-}
-if (found_app_aliddns()){
+
+if (found_app_aliddns()||found_app_zerotier()||found_app_ddnsto()||found_app_wireguard()){
 	tabtitle[16] = new Array("", "<#menu5_30#>");
-}else if (found_app_ddnsto()){
-	tabtitle[16] = new Array("", "<#menu5_32_2#>");
-} else if (found_app_zerotier()){
-	tabtitle[16] = new Array("", "<#menu5_32#>");
-} else if (found_app_wireguard()){
-	tabtitle[16] = new Array("", "<#menu5_35#>");
-}
-if (found_app_frp()){
-	tabtitle[17] = new Array("", "<#menu5_25_1#>");
-}
-if (found_app_caddy()){
-	tabtitle[18] = new Array("", "<#menu5_27_1#>");
-}
-if (found_app_wyy()){
-	tabtitle[19] = new Array("", "<#menu5_31_1#>");
 }
 if (found_app_aldriver()){
-	tabtitle[20] = new Array("", "<#menu5_36_1#>");
+	tabtitle[17] = new Array("", "<#menu5_36#>");
 }
-if (found_app_uuplugin()){
-	tabtitle[21] = new Array("", "UU加速器");
+if (found_app_sqm()){
+	tabtitle[18] = new Array("", "<#menu5_37#>");
 }
-if (found_app_lucky()){
-	tabtitle[22] = new Array("", "Lucky");
-}
-if (found_app_wxsend()){
-	tabtitle[23] = new Array("", "微信推送");
-}
-if (found_app_cloudflared()){
-	tabtitle[24] = new Array("", "CloudFlared");
-}
-if (found_app_vnts()){
-	tabtitle[25] = new Array("", "VNT服务器");
-}
-if (found_app_vntcli()){
-	tabtitle[26] = new Array("", "VNT客户端");
-}
-if (found_app_natpierce()){
-	tabtitle[27] = new Array("", "皎月连");
-}
-if (found_app_tailscale()){
-	tabtitle[28] = new Array("", "Tailscale");
-}
-if (found_app_alist()){
-	tabtitle[29] = new Array("", "Alist");
-}
-if (found_app_cloudflare()){
-	tabtitle[30] = new Array("", "CF域名解析");
-}
-if (found_app_easytier()){
-	tabtitle[31] = new Array("", "EasyTier");
-}
-if (found_app_bafa()){
-	tabtitle[32] = new Array("", "巴法云");
-}
-if (found_app_virtualhere()){
-	tabtitle[33] = new Array("", "VirtualHere");
-}
-if (found_app_v2raya()){
-	tabtitle[34] = new Array("", "V2RayA");
+if (found_app_frp()){
+	tabtitle[19] = new Array("", "<#menu5_25#>");
 }
 
 //Level 3 Tab title
@@ -494,7 +440,7 @@ tablink[3] = new Array("", "Advanced_WAN_Content.asp", "Advanced_IPv6_Content.as
 tablink[4] = new Array("", "Advanced_BasicFirewall_Content.asp", "Advanced_Netfilter_Content.asp", "Advanced_URLFilter_Content.asp", "Advanced_MACFilter_Content.asp", "Advanced_Firewall_Content.asp");
 tablink[5] = new Array("", "Advanced_AiDisk_others.asp", "Advanced_AiDisk_samba.asp", "Advanced_AiDisk_ftp.asp", "Advanced_Modem_others.asp", "Advanced_Printer_others.asp");
 tablink[6] = new Array("", "Advanced_System_Content.asp", "Advanced_Services_Content.asp", "Advanced_OperationMode_Content.asp", "Advanced_FirmwareUpgrade_Content.asp", "Advanced_SettingBackup_Content.asp", "Advanced_Console_Content.asp");
-tablink[7] = new Array("", "Advanced_Tweaks_Content.asp", "Advanced_Scripts_Content.asp", "Advanced_InetDetect_Content.asp" ,"Advanced_web.asp");
+tablink[7] = new Array("", "Advanced_Tweaks_Content.asp", "Advanced_Scripts_Content.asp", "Advanced_InetDetect_Content.asp");
 tablink[8] = new Array("", "Main_WStatus2g_Content.asp", "Main_WStatus_Content.asp", "", "", "", "", "", "", "", "");
 tablink[9] = new Array("", "Main_LogStatus_Content.asp", "Main_DHCPStatus_Content.asp", "Main_IPTStatus_Content.asp", "Main_RouteStatus_Content.asp", "Main_CTStatus_Content.asp");
 if (found_app_scutclient()){
@@ -513,12 +459,9 @@ if (found_app_mentohust()){
 	mentohust_array = new Array("","mentohust.asp","mentohust_log.asp");
 	tablink[13] = (mentohust_array);
 }
-if (found_app_adbyby()){
-	ad_array = new Array("","Advanced_adbyby.asp");
+if (found_app_lucky()){
+	ad_array = new Array("","Advanced_lucky.asp");
 	tablink[14] = (ad_array);
-}else if (found_app_koolproxy()){
-	kp_array = new Array("","Advanced_koolproxy.asp");
-	tablink[14] = (kp_array);
 }
 if (found_app_smartdns()){
 	smartdns_array = new Array("","Advanced_smartdns.asp");
@@ -530,91 +473,33 @@ if (found_app_smartdns()){
 if (found_app_aliddns()){
 	aliddns_array = new Array("","Advanced_aliddns.asp");
 	tablink[16] = (aliddns_array);
-}else if (found_app_ddnsto()){
-	ddnsto_array = new Array("","Advanced_ddnsto.asp");
-	tablink[16] = (ddnsto_array);
 }else if (found_app_zerotier()){
 	zerotier_array = new Array("","Advanced_zerotier.asp");
 	tablink[16] = (zerotier_array);
+}else if (found_app_ddnsto()){
+	ddnsto_array = new Array("","Advanced_ddnsto.asp");
+	tablink[16] = (ddnsto_array);
 }else if (found_app_wireguard()){
 	wireguard_array = new Array("","Advanced_wireguard.asp");
 	tablink[16] = (wireguard_array);
 }
+if (found_app_aldriver()){
+	aldriver_arry = new Array("","Advanced_aliyundrive.asp");
+	tablink[17] = (aldriver_arry);
+}
+if (found_app_sqm()){
+	sqm_array = new Array("","Advanced_SQM.asp");
+	tablink[18] = (sqm_array);
+}
 if (found_app_frp()){
 	frp_array = new Array("","Advanced_frp.asp");
-	tablink[17] = (frp_array);
-}
-if (found_app_caddy()){
-	caddy_array = new Array("","Advanced_caddy.asp");
-	tablink[18] = (caddy_array);
-}
-if (found_app_wyy()){
-	wyy_array = new Array("","Advanced_wyy.asp");
-	tablink[19] = (wyy_array);
-}
-if (found_app_aldriver()){
-	aliyundrive_array = new Array("","Advanced_aliyundrive.asp");
-	tablink[20] = (aliyundrive_array);
-}
-if (found_app_uuplugin()){
-	uuplugin_array = new Array("","Advanced_uuplugin.asp");
-	tablink[21] = (uuplugin_array);
-}
-if (found_app_lucky()){
-	lucky_array = new Array("","Advanced_lucky.asp");
-	tablink[22] = (lucky_array);
-}
-if (found_app_wxsend()){
-	wxsend_array = new Array("","Advanced_wxsend.asp");
-	tablink[23] = (wxsend_array);
-}
-if (found_app_cloudflared()){
-	cloudflared_array = new Array("","Advanced_cloudflared.asp");
-	tablink[24] = (cloudflared_array);
-}
-if (found_app_vnts()){
-	vnts_array = new Array("","Advanced_vnts.asp");
-	tablink[25] = (vnts_array);
-}
-if (found_app_vntcli()){
-	vntcli_array = new Array("","Advanced_vnt.asp");
-	tablink[26] = (vntcli_array);
-}
-if (found_app_natpierce()){
-	natpierce_array = new Array("","Advanced_natpierce.asp");
-	tablink[27] = (natpierce_array);
-}
-if (found_app_tailscale()){
-	tailscale_array = new Array("","Advanced_tailscale.asp");
-	tablink[28] = (tailscale_array);
-}
-if (found_app_alist()){
-	alist_array = new Array("","Advanced_alist.asp");
-	tablink[29] = (alist_array);
-}
-if (found_app_cloudflare()){
-	cloudflare_array = new Array("","Advanced_cloudflare.asp");
-	tablink[30] = (cloudflare_array);
-}
-if (found_app_easytier()){
-	easytier_array = new Array("","Advanced_easytier.asp");
-	tablink[31] = (easytier_array);
-}
-if (found_app_bafa()){
-	bafa_array = new Array("","Advanced_bafa.asp");
-	tablink[32] = (bafa_array);
-}
-if (found_app_virtualhere()){
-	virtualhere_array = new Array("","Advanced_virtualhere.asp");
-	tablink[33] = (virtualhere_array);
-}
-if (found_app_v2raya()){
-	v2raya_array = new Array("","Advanced_v2raya.asp");
-	tablink[34] = (v2raya_array);
+	tablink[19] = (frp_array);
+	tabtitle[9].push('<#menu5_25_1#>');
+	tablink[9].push('Advanced_frp_log.asp');
 }
 
 //Level 2 Menu
-menuL2_title = new Array(23)
+menuL2_title = new Array(20)
 menuL2_title = new Array("", "<#menu5_11#>", "<#menu5_12#>", "<#menu5_2#>", "<#menu5_3#>", "<#menu5_5#>", "<#menu5_4#>", "<#menu5_6#>", "<#menu5_10#>", "<#menu5_9#>", "<#menu5_7#>");
 if (found_app_scutclient()){
 	menuL2_title.push("<#menu5_13#>");
@@ -632,98 +517,28 @@ if (found_app_mentohust()){
 	menuL2_title.push("mentohust");
 } else menuL2_title.push("");
 
-if (found_app_koolproxy()){
-	menuL2_title.push("<#menu5_20#>");
-}else if (found_app_adbyby()){
+if (found_app_lucky()){
 	menuL2_title.push("<#menu5_20#>");
 } else menuL2_title.push("");
 
-if (found_app_smartdns()){
-	menuL2_title.push("<#menu5_29#>");
-} else if (found_app_adguardhome()){
+if (found_app_smartdns()||found_app_adguardhome()){
 	menuL2_title.push("<#menu5_29#>");
 } else menuL2_title.push("");
 
-if (found_app_aliddns()){
+if (found_app_aliddns()||found_app_zerotier()||found_app_ddnsto()||found_app_wireguard()){
 	menuL2_title.push("<#menu5_30#>");
-} else if (found_app_ddnsto()){
-	menuL2_title.push("<#menu5_30#>");
-} else if (found_app_zerotier()){
-	menuL2_title.push("<#menu5_30#>");
-} else if (found_app_wireguard()){
-	menuL2_title.push("<#menu5_30#>");
-} else menuL2_title.push("");
-
-if (found_app_frp()){
-	menuL2_title.push("<#menu5_25#>");
-} else menuL2_title.push("");
-
-if (found_app_caddy()){
-	menuL2_title.push("<#menu5_27#>");
-} else menuL2_title.push("");
-
-if (found_app_wyy()){
-	menuL2_title.push("<#menu5_31#>");
 } else menuL2_title.push("");
 
 if (found_app_aldriver()){
 	menuL2_title.push("<#menu5_36#>");
 } else menuL2_title.push("");
 
-if (found_app_uuplugin()){
-	menuL2_title.push("UU加速器");
+if (found_app_sqm()){
+	menuL2_title.push("<#menu5_37#>");
 } else menuL2_title.push("");
 
-if (found_app_lucky()){
-	menuL2_title.push("Lucky");
-} else menuL2_title.push("");
-
-if (found_app_wxsend()){
-	menuL2_title.push("微信推送");
-} else menuL2_title.push("");
-
-if (found_app_cloudflared()){
-	menuL2_title.push("CloudFlared");
-} else menuL2_title.push("");
-
-if (found_app_vnts()){
-	menuL2_title.push("VNT服务器");
-} else menuL2_title.push("");
-
-if (found_app_vntcli()){
-	menuL2_title.push("VNT客户端");
-} else menuL2_title.push("");
-
-if (found_app_natpierce()){
-	menuL2_title.push("皎月连");
-} else menuL2_title.push("");
-
-if (found_app_tailscale()){
-	menuL2_title.push("Tailscale");
-} else menuL2_title.push("");
-
-if (found_app_alist()){
-	menuL2_title.push("Alist");
-} else menuL2_title.push("");
-
-if (found_app_cloudflare()){
-	menuL2_title.push("CF域名解析");
-} else menuL2_title.push("");
-
-if (found_app_easytier()){
-	menuL2_title.push("EasyTier");
-} else menuL2_title.push("");
-
-if (found_app_bafa()){
-	menuL2_title.push("巴法云");
-} else menuL2_title.push("");
-
-if (found_app_virtualhere()){
-	menuL2_title.push("VirtualHere");
-} else menuL2_title.push("");
-
-if (found_app_v2raya()){
-	menuL2_title.push("V2RayA");
+if (found_app_frp()){
+	menuL2_title.push("<#menu5_25#>");
 } else menuL2_title.push("");
 
 menuL2_link  = new Array("", tablink[0][1], tablink[1][1], tablink[2][1], tablink[3][1], tablink[4][1], tablink[5][1], tablink[6][1], tablink[7][1], support_2g_radio() ? tablink[8][1] : "Main_EStatus_Content.asp", tablink[9][1]);
@@ -742,84 +557,54 @@ if (found_app_shadowsocks()){
 if (found_app_mentohust()){
 	menuL2_link.push(mentohust_array[1]);
 } else menuL2_link.push("");
-if (found_app_adbyby()){
+
+if (found_app_lucky()){
 	menuL2_link.push(ad_array[1]);
-} else if (found_app_koolproxy()){
-	menuL2_link.push(kp_array[1]);
-} else menuL2_link.push("");
+}  else menuL2_link.push("");
+
 if (found_app_smartdns()){
 	menuL2_link.push(smartdns_array[1]);
 } else if (found_app_adguardhome()){
 	menuL2_link.push(adg_array[1]);
 } else menuL2_link.push("");
+
 if (found_app_aliddns()){
 	menuL2_link.push(aliddns_array[1]);
-} else if (found_app_ddnsto()){
-	menuL2_link.push(ddnsto_array[1]);
 } else if (found_app_zerotier()){
 	menuL2_link.push(zerotier_array[1]);
+} else if (found_app_ddnsto()){
+	menuL2_link.push(ddnsto_array[1]);
 } else if (found_app_wireguard()){
 	menuL2_link.push(wireguard_array[1]);
 } else menuL2_link.push("");
+
+if (found_app_aldriver()){
+	menuL2_link.push(aldriver_arry[1]);
+} else menuL2_link.push("");
+
+if (found_app_sqm()){
+	menuL2_link.push(sqm_array[1]);
+} else menuL2_link.push("");
+
 if (found_app_frp()){
 	menuL2_link.push(frp_array[1]);
-} else menuL2_link.push("");
-if (found_app_caddy()){
-	menuL2_link.push(caddy_array[1]);
-} else menuL2_link.push("");
-if (found_app_wyy()){
-	menuL2_link.push(wyy_array[1]);
-} else menuL2_link.push("");
-if (found_app_aldriver()){
-	menuL2_link.push(aliyundrive_array[1]);
-} else menuL2_link.push("");
-if (found_app_uuplugin()){
-	menuL2_link.push(uuplugin_array[1]);
-} else menuL2_link.push("");
-if (found_app_lucky()){
-	menuL2_link.push(lucky_array[1]);
-} else menuL2_link.push("");
-if (found_app_wxsend()){
-	menuL2_link.push(wxsend_array[1]);
-} else menuL2_link.push("");
-if (found_app_cloudflared()){
-	menuL2_link.push(cloudflared_array[1]);
-} else menuL2_link.push("");
-if (found_app_vnts()){
-	menuL2_link.push(vnts_array[1]);
-} else menuL2_link.push("");
-if (found_app_vntcli()){
-	menuL2_link.push(vntcli_array[1]);
-} else menuL2_link.push("");
-if (found_app_natpierce()){
-	menuL2_link.push(natpierce_array[1]);
-} else menuL2_link.push("");
-if (found_app_tailscale()){
-	menuL2_link.push(tailscale_array[1]);
-} else menuL2_link.push("");
-if (found_app_alist()){
-	menuL2_link.push(alist_array[1]);
-} else menuL2_link.push("");
-if (found_app_cloudflare()){
-	menuL2_link.push(cloudflare_array[1]);
-} else menuL2_link.push("");
-if (found_app_easytier()){
-	menuL2_link.push(easytier_array[1]);
-} else menuL2_link.push("");
-if (found_app_bafa()){
-	menuL2_link.push(bafa_array[1]);
-} else menuL2_link.push("");
-if (found_app_virtualhere()){
-	menuL2_link.push(virtualhere_array[1]);
-} else menuL2_link.push("");
-if (found_app_v2raya()){
-	menuL2_link.push(v2raya_array[1]);
 } else menuL2_link.push("");
 
 //Level 1 Menu in Gateway, Router mode
 menuL1_title = new Array("", "<#menu1#>", "", "<#menu2#>", "<#menu6#>", "<#menu4#>", "<#menu5_8#>", "<#menu5#>");
 menuL1_link = new Array("", "index.asp", "", "vpnsrv.asp", "vpncli.asp", "Main_TrafficMonitor_realtime.asp", "Advanced_System_Info.asp", "as.asp");
 menuL1_icon = new Array("", "icon-home", "icon-hdd", "icon-retweet", "icon-globe", "icon-tasks", "icon-random", "icon-wrench");
+
+if (!found_app_vpnsvr()) {
+	menuL1_title[3] = '';
+	menuL1_link[3] = '';
+	menuL1_icon[3] = '';
+}
+if (!found_app_vpncli()) {
+	menuL1_title[4] = '';
+	menuL1_link[4] = '';
+	menuL1_icon[4] = '';
+}
 
 function show_menu(L1, L2, L3){
 	var i;
@@ -845,10 +630,6 @@ function show_menu(L1, L2, L3){
 		menuL2_title[4] = "";
 		menuL2_link[5] = "";  //remove Firewall
 		menuL2_title[5] = "";
-		menuL1_link[3] = "";  //remove VPN svr
-		menuL1_title[3] = "";
-		menuL1_link[4] = "";  //remove VPN cli
-		menuL1_title[4] = "";
 		
 		if (lan_proto == '1'){
 			tabtitle[2].splice(2,1);
@@ -963,6 +744,10 @@ function show_menu(L1, L2, L3){
 function show_footer(){
 	footer_code = '<div align="center" class="bottom-image"></div>\n';
 	footer_code +='<div align="center" class="copyright"><#footer_copyright_desc#></div>\n';
+	footer_code +='<div align="center">\n';
+	footer_code +='  <span>Developed by © <a href="https://bitbucket.org/padavan/rt-n56u/">Andy Padavan</a> &amp; <a href="https://github.com/hanwckf/padavan-4.4">hanwckf</a> &amp; <a href="https://github.com/MeIsReallyBa/padavan-4.4">MeIsReallyBa</a> &amp; <a href="https://github.com/tsl0922/padavan">tsl0922</a> &amp; <a href="https://github.com/TurBoTse/padavan">TurBoTse</a></span></br>\n';
+	footer_code +='  <span>Firmware distribution is prohibited , Non-Commercial Use Only</span></br>\n';
+	footer_code +='</div>\n';
 
 	$("footer").innerHTML = footer_code;
 
@@ -1042,30 +827,17 @@ function show_loading_obj(){
 function submit_language(){
 	if($("select_lang").value != $("preferred_lang").value){
 		showLoading();
-		
 		with(document.titleForm){
 			action = "/start_apply.htm";
-			
 			if(location.pathname == "/")
 				current_page.value = "/index.asp";
 			else
 				current_page.value = location.pathname;
-			
 			preferred_lang.value = $("select_lang").value;
 			flag.value = "set_language";
-			
 			submit();
 		}
 	}
-}
-
-function button_ttyd(){
-	var port = '<% nvram_get_x("", "ttyd_port"); %>';
-        if (port == '')
-            var port = '7681';
-        var porturl =window.location.protocol + '//' + window.location.hostname + ":" + port;
-        //alert(porturl);
-        window.open(porturl,'ttyd');
 }
 
 function logout(){
@@ -1075,7 +847,7 @@ function logout(){
 }
 
 function reboot(){
-	if(!confirm('<#Main_content_Login_Item7#>'))
+	if(!confirm('<#JS_reboot#>'))
 		return;
 	showLoading(board_boot_time());
 	var $j = jQuery.noConflict();
@@ -1085,7 +857,7 @@ function reboot(){
 	});
 }
 
-/*function shutdown(){
+function shutdown(){
 	if(!confirm('<#JS_shutdown#>'))
 		return;
 	var $j = jQuery.noConflict();
@@ -1094,7 +866,15 @@ function reboot(){
 		'action_mode': ' Shutdown ',
 		'current_page': 'Main_LogStatus_Content.asp'
 	});
-}*/
+}
+
+function freememory(){
+	var $j = jQuery.noConflict();
+	$j.post('/apply.cgi',
+	{
+		'action_mode': ' FreeMemory ',
+	});
+}
 
 function click_info_cpu(){
 	location.href="/Advanced_System_Info.asp#CPU";
@@ -1294,10 +1074,10 @@ function validate_string(string_obj, flag){
 	if(string_obj.value.charAt(0) == '"'){
 		if(flag != "noalert")
 			alert('<#JS_validstr1#> ["]');
-		
+
 		string_obj.value = "";
 		string_obj.focus();
-		
+
 		return false;
 	}
 	else{
@@ -1338,7 +1118,7 @@ function validate_psk(psk_obj){
 		psk_obj.value = "00000000";
 		psk_obj.focus();
 		psk_obj.select();
-		
+
 		return false;
 	}
 	if(psk_length > 64){
@@ -1346,7 +1126,7 @@ function validate_psk(psk_obj){
 		psk_obj.value = psk_obj.value.substring(0, 64);
 		psk_obj.focus();
 		psk_obj.select();
-		
+
 		return false;
 	}
 	if(psk_length >= 8 && psk_length <= 63 && !validate_string(psk_obj)){
@@ -1372,10 +1152,9 @@ function checkDuplicateName(newname, targetArray){
 	var existing_string = targetArray.join(',');
 	existing_string = ","+existing_string+",";
 	var newstr = ","+trim(newname)+",";
-	
 	var re = new RegExp(newstr, "gi");
 	var matchArray = existing_string.match(re);
-	
+
 	if(matchArray != null)
 		return true;
 	else
@@ -1602,19 +1381,14 @@ function showClockLogArea(){
         JS_timeObj.setTime(systime_millsec);
         systime_millsec += 1000;
 
-        let year = JS_timeObj.getFullYear();
-        let month = checkTime(JS_timeObj.getMonth() + 1);
-        let date = checkTime(JS_timeObj.getDate());
-        let hours = checkTime(JS_timeObj.getHours());
-        let minutes = checkTime(JS_timeObj.getMinutes());
-        let seconds = checkTime(JS_timeObj.getSeconds());
-	const days = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-	let day = days[JS_timeObj.getDay()];
-	let timezoneInfo = `GMT${timezone}`;
-	    
-        JS_timeObj2 = `${year}年 ${month}月 ${date}日 ${day}  ${hours}:${minutes}:${seconds}  ${timezoneInfo}`;
+        JS_timeObj2 = JS_timeObj.toString();
+        JS_timeObj2 = JS_timeObj2.substring(0,3) + ", " +
+        JS_timeObj2.substring(4,10) + "  " +
+        checkTime(JS_timeObj.getHours()) + ":" +
+        checkTime(JS_timeObj.getMinutes()) + ":" +
+        checkTime(JS_timeObj.getSeconds()) + "  " +
+        JS_timeObj.getFullYear() + " GMT" + timezone;
     }
-	
     jQuery("#system_time_log_area").html(JS_timeObj2);
     setTimeout("showClockLogArea()", 1000);
 }
@@ -1690,173 +1464,6 @@ function removeFromLocalStorage(name){
     if(isLocalStorageAvailable()){
         localStorage.removeItem(name);
     }
-}
-//WEB自定义菜单
-var w_ai = '<% nvram_get_x("", "w_ai"); %>';
-var w_vpn_s = '<% nvram_get_x("", "w_vpn_s"); %>';
-var w_vpn_c = '<% nvram_get_x("", "w_vpn_c"); %>';
-var w_wnet = '<% nvram_get_x("", "w_wnet"); %>';
-var w_sys = '<% nvram_get_x("", "w_sys"); %>';
-var w_usb = '<% nvram_get_x("", "w_usb"); %>';
-var w_net = '<% nvram_get_x("", "w_net"); %>';
-var w_log = '<% nvram_get_x("", "w_log"); %>';
-var w_scu = '<% nvram_get_x("", "w_scu"); %>';
-var w_dnsf = '<% nvram_get_x("", "w_dnsf"); %>';
-var w_ss = '<% nvram_get_x("", "w_ss"); %>';
-var w_men = '<% nvram_get_x("", "w_men"); %>';
-var w_adbyby = '<% nvram_get_x("", "w_adbyby"); %>';
-var w_pdnsd = '<% nvram_get_x("", "w_pdnsd"); %>';
-var w_aliddns = '<% nvram_get_x("", "w_aliddns"); %>';
-var w_frp = '<% nvram_get_x("", "w_frp"); %>';
-var w_caddy = '<% nvram_get_x("", "w_caddy"); %>';
-var w_wyy = '<% nvram_get_x("", "w_wyy"); %>';
-var w_aldriver = '<% nvram_get_x("", "w_aldriver"); %>';
-var w_uuplugin = '<% nvram_get_x("", "w_uuplugin"); %>';
-var w_lucky = '<% nvram_get_x("", "w_lucky"); %>';
-var w_wxsend = '<% nvram_get_x("", "w_wxsend"); %>';
-var w_cloudflared = '<% nvram_get_x("", "w_cloudflared"); %>';
-var w_vnts = '<% nvram_get_x("", "w_vnts"); %>';
-var w_vntcli = '<% nvram_get_x("", "w_vntcli"); %>';
-var w_natpierce = '<% nvram_get_x("", "w_natpierce"); %>';
-var w_tailscale = '<% nvram_get_x("", "w_tailscale"); %>';
-var w_alist = '<% nvram_get_x("", "w_alist"); %>';
-var w_cloudflare = '<% nvram_get_x("", "w_cloudflare"); %>';
-var w_easytier = '<% nvram_get_x("", "w_easytier"); %>';
-var w_bafa = '<% nvram_get_x("", "w_bafa"); %>';
-var w_virtualhere = '<% nvram_get_x("", "w_virtualhere"); %>';
-var w_v2raya = '<% nvram_get_x("", "w_v2raya"); %>';
-
-if (w_ai==0){
-	menuL1_link[2] = "";
-	menuL1_title[2] = "";
-}
-if (w_vpn_s==0){
-	menuL1_link[3] = "";
-	menuL1_title[3] = "";
-}
-if (w_vpn_c==0){
-	menuL1_link[4] = "";
-	menuL1_title[4] = "";
-}
-if (w_wnet==0){
-	menuL1_link[5] = "";
-	menuL1_title[5] = "";
-}
-if (w_sys==0){
-	menuL1_link[6] = "";
-	menuL1_title[6] = "";
-}
-if (w_usb==0){
-	menuL2_link[6] = "";
-	menuL2_title[6] = "";
-}
-if (w_net==0){
-	menuL2_link[9] = "";
-	menuL2_title[9] = "";
-}
-if (w_log==0){
-	menuL2_link[10] = "";
-	menuL2_title[10] = "";
-}
-if (w_scu==0){
-	menuL2_link[11] = "";
-	menuL2_title[11] = "";
-}
-if (w_dnsf==0){
-	menuL2_link[12] = "";
-	menuL2_title[12] = "";
-}
-if (w_ss==0){
-	menuL2_link[13] = "";
-	menuL2_title[13] = "";
-}
-if (w_men==0){
-	menuL2_link[14] = "";
-	menuL2_title[14] = "";
-}
-if (w_adbyby==0){
-	menuL2_link[15] = "";
-	menuL2_title[15] = "";
-}
-if (w_pdnsd==0){
-	menuL2_link[16] = "";
-	menuL2_title[16] = "";
-}
-if (w_aliddns==0){
-	menuL2_link[17] = "";
-	menuL2_title[17] = "";
-}
-if (w_frp==0){
-	menuL2_link[18] = "";
-	menuL2_title[18] = "";
-}
-if (w_caddy==0){
-	menuL2_link[19] = "";
-	menuL2_title[19] = "";
-}
-if (w_wyy==0){
-	menuL2_link[20] = "";
-	menuL2_title[20] = "";
-}
-if (w_aldriver==0){
-	menuL2_link[21] = "";
-	menuL2_title[21] = "";
-}
-if (w_uuplugin==0){
-	menuL2_link[22] = "";
-	menuL2_title[22] = "";
-}
-if (w_lucky==0){
-	menuL2_link[23] = "";
-	menuL2_title[23] = "";
-}
-if (w_wxsend==0){
-	menuL2_link[24] = "";
-	menuL2_title[24] = "";
-}
-if (w_cloudflared==0){
-	menuL2_link[25] = "";
-	menuL2_title[25] = "";
-}
-if (w_vnts==0){
-	menuL2_link[26] = "";
-	menuL2_title[26] = "";
-}
-if (w_vntcli==0){
-	menuL2_link[27] = "";
-	menuL2_title[27] = "";
-}
-if (w_natpierce==0){
-	menuL2_link[28] = "";
-	menuL2_title[28] = "";
-}
-if (w_tailscale==0){
-	menuL2_link[29] = "";
-	menuL2_title[29] = "";
-}
-if (w_alist==0){
-	menuL2_link[30] = "";
-	menuL2_title[30] = "";
-}
-if (w_cloudflare==0){
-	menuL2_link[31] = "";
-	menuL2_title[31] = "";
-}
-if (w_easytier==0){
-	menuL2_link[32] = "";
-	menuL2_title[32] = "";
-}
-if (w_bafa==0){
-	menuL2_link[33] = "";
-	menuL2_title[33] = "";
-}
-if (w_virtualhere==0){
-	menuL2_link[34] = "";
-	menuL2_title[34] = "";
-}
-if (w_v2raya==0){
-	menuL2_link[35] = "";
-	menuL2_title[35] = "";
 }
 
 (function($){
