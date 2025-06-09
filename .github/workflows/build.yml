@@ -44,7 +44,16 @@ jobs:
       - name: Build Firmware
         run: |
           make ${{ matrix.target }} TOOLCHAIN=${{ matrix.toolchain }}
-
+      
+      - name: Rename Firmware
+        run: |
+          cd trunk/images
+          for f in *.trx; do
+            new_name="${f/TurBoTse/chen}"  # 替换前缀
+            mv "$f" "$new_name"
+          done
+          cd -
+    
       - uses: actions/upload-artifact@main
         with:
           name: ${{ matrix.target }}-${{ matrix.toolchain }}-${{ env.BUILD_DATE }}
