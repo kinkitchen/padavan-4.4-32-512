@@ -1,18 +1,32 @@
-include $(ROOTDIR)/rules.mk
+SRC_NAME=igmpproxy-0.3
 
-PKG_NAME:=igmpproxy
-PKG_VERSION:=0.3
+all:	config_test
+	$(MAKE) -C $(SRC_NAME)
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/pali/igmpproxy/releases/download/${PKG_VERSION}/
-PKG_HASH:=d1fc244cb2fbbf99f720bda3e841fe59ece9b6919073790b4b892739b1b844eb
+config_test:
+	( if [ -f ./config_done ]; then \
+		echo "the same configuration"; \
+	else \
+		make configure && touch config_done; \
+	fi )
 
-PKG_FIXUP:=autoreconf
+configure:
+	( cd $(SRC_NAME) ; \
+	./autogen.sh ; \
+	./configure \
+		--prefix=/ \
+		--host=$(HOST_TARGET) \
+		--build=$(HOST_BUILD) ; \
+	)
 
-include $(INCLUDE_DIR)/package.mk
-
-$(eval $(call BuildPackage,igmpproxy))
+clean:
+	if [ -f $(SRC_NAME)/Makefile ] ; then \
+		$(MAKE) -C $(SRC_NAME) distclean ; \
+	fi ; \
+	rm -f igmpproxy
+	rm -f config_done
 
 romfs:
-	$(INSTALL_DIR) $(ROMFSDIR)/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/igmpproxy $(ROMFSDIR)/bin/igmpproxy
+	cp $(SRC_NAME)/src/igmpproxy .
+	$(STRIP) igmpproxy
+	$(ROMFSINST) /bin/igmpproxy
