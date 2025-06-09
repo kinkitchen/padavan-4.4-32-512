@@ -165,9 +165,6 @@ endif
 ifneq ($(CONFIG_FIRMWARE_INCLUDE_ADBYBY),y)
 	rm -f $(INSTALLDIR)/www/Advanced_adbyby.asp
 endif
-ifneq ($(CONFIG_FIRMWARE_INCLUDE_LUCKY),y)
-	rm -f $(INSTALLDIR)/www/Advanced_lucky.asp
-endif
 ifneq ($(CONFIG_FIRMWARE_INCLUDE_ALIDDNS),y)
 	rm -f $(INSTALLDIR)/www/Advanced_aliddns.asp
 endif
