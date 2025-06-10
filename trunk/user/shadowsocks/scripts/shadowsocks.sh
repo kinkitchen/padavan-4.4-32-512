@@ -17,6 +17,7 @@ http_username=`nvram get http_username`
 CONFIG_FILE=/tmp/${NAME}.json
 CONFIG_UDP_FILE=/tmp/${NAME}_u.json
 CONFIG_SOCK5_FILE=/tmp/${NAME}_s.json
+CONFIG_KUMASOCKS_FILE=/tmp/kumasocks.toml
 v2_json_file="/tmp/v2-redir.json"
 trojan_json_file="/tmp/tj-redir.json"
 server_count=0
@@ -615,7 +616,14 @@ kill_process() {
 		kill -9 "$trojandir" >/dev/null 2>&1
 	fi
 	
-	ipt2socks_process=$(pidof ipt2socks)
+        kumasocks_process=$(pidof kumasocks)
+	if [ -n "$kumasocks_process" ]; then
+		logger -t "SS" "关闭kumasocks进程..."
+		killall kumasocks >/dev/null 2>&1
+		kill -9 "$kumasocks_process" >/dev/null 2>&1
+	fi
+	
+        ipt2socks_process=$(pidof ipt2socks)
 	if [ -n "$ipt2socks_process" ]; then
 		log "关闭 ipt2socks 进程..."
 		killall ipt2socks >/dev/null 2>&1
