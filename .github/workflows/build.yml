@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [K2P]
+        target: [K2P-32-nano]
         toolchain: [mipsel-linux-musl]
 
     steps:
